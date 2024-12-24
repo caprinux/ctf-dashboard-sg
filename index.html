@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity Events</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+		:root {
+            --background-color: #1a1a1a;
+            --text-color: #f0f0f0;
+            --card-background: #2a2a2a;
+            --card-border: #3a3a3a;
+            --button-background: #007bff;
+            --button-color: #ffffff;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+			padding-bottom:60px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+			min-height:100%;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-top: 20px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .toggle-btn {
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .toggle-btn img {
+            width: 100%;
+            height: auto;
+        }
+
+        .toggle-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .light-mode {
+            --background-color: #ffffff;
+            --text-color: #000000;
+            --card-background: #f5f5f5;
+            --card-border: #dddddd;
+        }
+
+        .events {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .event-card {
+            background: var(--card-background);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .event-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .event-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .event-header img {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+        }
+
+        .event-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .event-details p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .event-details p span {
+            font-weight: bold;
+        }
+
+		.footer {
+            text-align: center;
+			position:absolute;
+			bottom:0;
+			width:100%;
+			height:40px;   /* Height of the footer */
+			color: grey;
+			font-size: 13px;
+		}
+    </style>
+</head>
+<body>
+
+	<div class="container">
+        <div class="header">
+            <h1>Upcoming Events</h1>
+            <button class="toggle-btn" onclick="toggleMode()">
+                <img src="icons/dark-mode.png" alt="Toggle Mode" id="theme-icon">
+            </button>
+        </div>
+        <div class="events" id="events-container">
+            <!-- Events will be dynamically loaded here -->
+        </div>
+    </div>
+
+	<footer class="footer">
+		Maintained by Elma ♡ Contributions are accepted <a href="https://github.com/caprinux/ctf-dashboard-sg/pulls" target="_blank">here</a>
+	</footer>
+
+
+    <script>
+        function toggleMode() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+
+            body.classList.toggle('light-mode');
+
+            if (body.classList.contains('light-mode')) {
+                themeIcon.src = 'icons/light-mode.png';
+                themeIcon.alt = 'Switch to Dark Mode';
+            } else {
+                themeIcon.src = 'icons/dark-mode.png';
+                themeIcon.alt = 'Switch to Light Mode';
+            }
+        }
+
+        // Set dark mode as the default on load
+        document.body.classList.remove('light-mode');
+
+        // Fetch events from JSON file and populate the events section
+        fetch('/ctfs.json')
+            .then(response => response.json())
+            .then(events => {
+                const eventsContainer = document.getElementById('events-container');
+
+                events.forEach(event => {
+                    const eventCard = document.createElement('a');
+                    eventCard.href = event.link;
+                    eventCard.target = '_blank';
+                    eventCard.className = 'event-card';
+
+                    eventCard.innerHTML = `
+                        <div class="event-header">
+                            <img src="${event.logo}" alt="Event Logo">
+                            <h2 class="event-title">${event.title}</h2>
+                        </div>
+                        <div class="event-details">
+							<p><span>🏷️</span> <strong>${event.type}</strong></p>
+                            <p><span>🏢</span>  ${event.organizer}</p>
+                            <p><span>📅</span>  ${event.date}</p>
+                        </div>
+                    `;
+
+                    eventsContainer.appendChild(eventCard);
+                });
+            }, {cache: "no-store"})
+            .catch(error => console.error('Error loading events:', error));
+    </script>
+</body>
+</html>
+
